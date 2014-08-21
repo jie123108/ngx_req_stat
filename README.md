@@ -184,7 +184,26 @@ connecting to: ngx_stat
 ```
 
 ##关于查询界面：
-目前不提供查询平台，使用者可以自己开发，或者直接使用mongodb进行查询。
+>
+ngx_req_stat/NgxStatMgr 下面是一个简单的查询界面。使用Python编写。
+#### 使用前请先安装依赖的库：
+```bash
+easy_install flask
+easy_install simplejson
+easy_install pymongo
+```
+#### 运行：
+```sh
+cd path/to/NgxStatMgr
+export PYTHONPATH=`pwd`
+python py/Main.py
+```
+#### 访问:
+```
+http://ip:83/ngxstatmgr
+```
+查询界面如下图：
+![查询界面](NgxStatMgr/static/NginxStatMgr.png)
 
 联系作者:
 =====

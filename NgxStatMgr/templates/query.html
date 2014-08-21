@@ -1,0 +1,101 @@
+	{% if errmsg %}
+	<script>
+	alertMsg.error("{{errmsg}}");
+	</script>	
+	{% endif %}
+<div class="pageHeader" >
+	<form action="{{url_for('ngxstatquery.main')}}" method="post" onsubmit="return navTabSearch(this)">
+		<table width="100%">
+				<tr height="25">
+					<th width="8%">&nbsp;&nbsp;服务：</th>
+					<th width="80%">
+					   	<select name="serverid" onchange="return serverid_on_change(this);">
+					   		{% for key in server_names %}
+							    <option value="{{key}}" {% if serverid == key %} selected="selected" {%endif%} tables='{{tablesContent[key]}}'>{{key}}[{{servers[key]}}]</option>
+							{% endfor %}
+					   	</select>
+					   	&nbsp;&nbsp;&nbsp;表：<select name="table" id="table">{{defTables|safe}}</select>
+					</th>
+					<th width="10%">
+					</th>
+				</tr>
+				<tr height="25">
+					<th>&nbsp;&nbsp;时间：</th>
+					<th>
+					   	<input type="text" id="logdate" name="logdate" dateFmt="yyyy-MM-dd" 
+					   	value="{{logdate}}" size="16"
+					   	 class="date" readonly="true" 
+					   	 maxdate="2015-12-01" mindate="2014-05-01" />
+					</th>
+					<th>&nbsp;</th>
+				</tr>				
+				<tr height="25">
+					<th>&nbsp;&nbsp;查询：</th>
+					<th>
+					     <button type="submit" name="query" id="query">
+								&nbsp;查&nbsp;&nbsp;询&nbsp;
+						</button>
+					</th>
+					<th>&nbsp;</th>
+				</tr>
+		</table>
+	</form>
+</div>
+
+<div class="pageContent" style="margin-bottom:100px">
+	<div class="grid pageContent">
+		<div  layoutH="40">
+			<table class="list" width="100%">
+				<thead align="center">
+					<tr>
+						<th width="8%">时间</th>
+						<th width="25%">URL</th>
+						<th width="10%">请求次数</th>
+						{% if tcpstat %}
+						<th width="10%">成功次数(0)</th>
+						<th width="10%">失败次数(非0)</th>
+						{% else %}
+						<th width="10%">成功次数(2/3xx)</th>
+						<th width="10%">失败次数(4/5xx)</th>
+						{% endif %}
+						<th width="10%">平均响应时间</th>
+						<th width="5%">操作</th>
+					</tr>
+				</thead>
+				{% if record_cnt > 0 %}
+				<tbody align="left" id="ngx_stat_data">
+					{% for row in records %}
+					<tr>
+						<td><nobr>{{ row.date }}</nobr></td>
+						<td title="{{row.url}}">{{ row.url|truncate(40,true) }}</td>
+						<td title="{{row|times_detail}}">{{ row.count}}</td>
+						{% if tcpstat %}
+							<td title="{{row|tcp_ok_detail}}">{{row|tcp_ok_times|safe}}</td>
+							<td title="{{row|tcp_err_detail}}">{{row|tcp_err_times|safe}}</td>
+						{% else %}
+							{% if table == 'tfs' or table == 'thumb' %}
+							<td title="{{row|tfs_ok_detail}}">{{row|tfs_ok_times|safe}}</td>
+							<td title="{{row|tfs_err_detail}}">{{row|tfs_err_times|safe}}</td>
+							{% else %}
+							<td title="{{row|ok_detail}}">{{row|ok_times|safe}}</td>
+							<td title="{{row|err_detail}}">{{row|err_times|safe}}</td>
+							{% endif %}
+						{% endif %}
+						<td title="{{row|req_time_detail}}">{{row|req_time_all}}</td>
+						<td><a height="650" width="1100" rel="{{url_for('ngxstatquery.main')}}{{row.url}}" 
+							target="navTab" style="text-decoration: underline;"  
+							href="{{url_for('ngxstatquery.main')}}?serverid={{serverid}}&table={{table}}&url={{row.url}}&logdate=no"><nobr>查看历史</nobr></a></td>
+					</tr>
+					{% endfor %}
+				</tbody>
+				{% endif %}
+			</table>
+		</div>
+	</div>
+</div>
+<script>
+	function serverid_on_change(sel){
+		var items = sel.options[sel.selectedIndex].getAttribute("tables");
+		$('#table').html(items);		
+	}
+</script>

@@ -182,12 +182,13 @@ static void ngx_http_req_stat_flush(void* c, const char* collname, const char* k
 {
 	ngx_http_flush_callback_ctx_t* ctx = c;
     	ngx_http_req_stat_main_conf_t   *lmcf = ctx->conf;
-	json_object* jso_query = json_tokener_parse(key);
+	json_object* jso_query = json_tokener_parse2(key, strlen(key));
 	if(is_error(jso_query)){
 		time_t now = ngx_time();
 	    	if (now - lmcf->last_error_time > 59) {
 	        	ngx_log_error(NGX_LOG_ALERT, ctx->log, 0,
-						"parse query json(%s) failed!",&key);
+						"parse json key(%s) failed!",key);
+					
 				lmcf->last_error_time = now;
 	    	}
 		return;
@@ -238,6 +239,13 @@ static void ngx_http_req_stat_flush_handler(ngx_event_t *ev)
 	ctx.conf = lmcf;
 	req_stat_cache_flush(lmcf->cache, &ngx_http_req_stat_flush, &ctx);
 
+	if(ngx_exiting){
+		/*如果收到退出指令，不能再启动定时器。否则导致
+		 * worker 进程长期：is shutting down 状态，而不能退出
+		 */
+		return;
+	}
+	
 	
 	ngx_add_timer(lmcf->flush_event,lmcf->mongo_flush_interval);
 
@@ -282,6 +290,12 @@ static void ngx_http_req_stat_exit_process(ngx_cycle_t *cycle)
 		return;
 	}
 	
+	if(lmcf->flush_event != NULL){
+		ngx_del_timer(lmcf->flush_event);
+		ngx_pfree(cycle->pool, lmcf->flush_event);
+		lmcf->flush_event = NULL;
+	}
+
 	if(lmcf->cache!=NULL){
 		ngx_http_flush_callback_ctx_t ctx;
 		ctx.log = cycle->log;
@@ -505,7 +519,8 @@ ngx_http_req_stat_variable_getlen(ngx_http_request_t *r, uintptr_t data)
         return 1;
     }
 
-    len = ngx_http_req_stat_escape(NULL, value->data, value->len);
+	//UTF8等编码不进行转义 (转的话，会转成\\xE5\\xAE之类的，然后导致json_c解析失败。)
+    len =  0; //ngx_http_req_stat_escape(NULL, value->data, value->len);
 
     value->escape = len ? 1 : 0;
 
@@ -524,10 +539,9 @@ ngx_http_req_stat_variable(ngx_http_request_t *r, u_char *buf, ngx_http_req_stat
         *buf = '-';
         return buf + 1;
     }
-
+	
     if (value->escape == 0) {
         return ngx_cpymem(buf, value->data, value->len);
-
     } else {
         return (u_char *) ngx_http_req_stat_escape(buf, value->data, value->len);
     }
@@ -548,7 +562,7 @@ ngx_http_req_stat_escape(u_char *dst, u_char *src, size_t size)
 
                     /* _^]\ [ZYX WVUT SRQP  ONML KJIH GFED CBA@ */
         0x10000000, /* 0001 0000 0000 0000  0000 0000 0000 0000 */
-
+		
                     /*  ~}| {zyx wvut srqp  onml kjih gfed cba` */
         0x80000000, /* 1000 0000 0000 0000  0000 0000 0000 0000 */
 

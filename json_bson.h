@@ -1,11 +1,9 @@
 #ifndef __MSGCENTER_MONGO_POOL_H__
 #define __MSGCENTER_MONGO_POOL_H__
 
-#include "SimpleConnPool.h"
 #include <assert.h>
 #include "json-c/json.h"
 #include "mongoc.h"
-#include "json/json.h"
 
 void json_to_bson_append_element( bson_t *bb , const char *k , struct json_object *v );
 

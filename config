@@ -1,6 +1,6 @@
 
 HTTP_MODULES="$HTTP_MODULES ngx_http_req_stat_module"
-NGX_ADDON_SRCS="$NGX_ADDON_SRCS $ngx_addon_dir/ngx_http_req_stat_module.c $ngx_addon_dir/SimpleConnPool.c"
+NGX_ADDON_SRCS="$NGX_ADDON_SRCS $ngx_addon_dir/ngx_http_req_stat_module.c"
 NGX_ADDON_SRCS="$NGX_ADDON_SRCS $ngx_addon_dir/mongo_op_cache.cpp $ngx_addon_dir/ngx_http_req_stat_var.c"
 
 JSON_C=/usr/local/json-c-0.11

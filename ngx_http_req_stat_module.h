@@ -94,10 +94,5 @@ u_char *ngx_http_req_stat_body_bytes_sent(ngx_http_request_t *r,
 u_char *ngx_http_req_stat_request_length(ngx_http_request_t *r, u_char *buf,
     ngx_http_req_stat_op_t *op);
 
-u_char* ngx_http_req_stat_json_status(ngx_http_request_t *r, u_char *buf, ngx_http_req_stat_op_t *op);
-size_t ngx_http_req_stat_json_status_getlen(ngx_http_request_t *r, uintptr_t data);
-u_char* ngx_http_req_stat_json_reason(ngx_http_request_t *r, u_char *buf, ngx_http_req_stat_op_t *op);
-size_t ngx_http_req_stat_json_reason_getlen(ngx_http_request_t *r, uintptr_t data);
-
 
 #endif
