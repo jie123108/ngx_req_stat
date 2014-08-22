@@ -17,20 +17,21 @@
 ```
 mongo-c-driver  https://github.com/mongodb/mongo-c-driver<br/> 
 json-c http://www.linuxfromscratch.org/blfs/view/svn/general/json-c.html
+由于mongo-c-driver及json-c不同版本会有不兼容的问题出现，ngx_req_stat/libs下面有已经测试可以编译通过的版本。
 ```
 
 * mongo-c-driver安装：
 ```	
-wget https://github.com/mongodb/mongo-c-driver/releases/download/0.92.2/mongo-c-driver-0.92.2.tar.gz
-tar -xvf mongo-c-driver-0.92.2.tar.gz
+cd path/to/ngx_req_stat/libs
+tar -xvf mongo-c-driver-0.98.0.tar.gz
 cd mongo-c-driver-0.92.2
 ./configure --prefix=/usr
 make && make install
 ```
 * json-c 安装:
 ```
-wget https://s3.amazonaws.com/json-c_releases/releases/json-c-0.11.tar.gz
-tar -xvf json-c-0.11.tar.gz 
+cd path/to/ngx_req_stat/libs
+tar -xvf json-c.tar.gz
 ./configure --prefix=/usr
 make && make install
 ```
