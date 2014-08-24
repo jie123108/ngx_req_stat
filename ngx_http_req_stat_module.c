@@ -291,7 +291,7 @@ static void ngx_http_req_stat_exit_process(ngx_cycle_t *cycle)
 	}
 	
 	if(lmcf->flush_event != NULL){
-		ngx_del_timer(lmcf->flush_event);
+		//ngx_del_timer(lmcf->flush_event);
 		ngx_pfree(cycle->pool, lmcf->flush_event);
 		lmcf->flush_event = NULL;
 	}
