@@ -95,7 +95,7 @@ nginx.conf
 server {
     # 默认的主键，不用定义，名称为def，推荐的主键为：$date+$uri 这样可以按天及URL对统计进行查看。
     stat_key def "{'date':'$date','url':'$uri'}";
-    # 可以使用stat_key定义其它格式的主键，并取不同的名称，然后在其它req_stat指令中使用。
+    # 可以使用stat_key定义其它格式的主键，并取不同的名称，然后在其它req_stat指令(第二个参数)中使用。
     
     # mongodb配置(下面是默认配置值)。
     mongo_uri mongodb:://127.0.0.1:27017/
@@ -112,10 +112,25 @@ server {
     
     # 如果要关闭某个location的统计，使用:
     #req_stat off;
+    # 定义刷新记录到mongodb中的时间。单位是毫秒，可以带上h,m,s等单位表示时，分,秒。默认为5秒。该值设置的越大，mongodb的负载会越低。因为模块在内存中会对相同的统计项进行合并，然后插入。
+    mongo_flush_interval 5s; 
 }
 ```
+## 主键选择说明：
+>一般情况是使用 $date, $uri 就可以了，有时也可以加上其它参数，比如下面的示例中：
+按根据请求头里面的x_province参数进行区分统计:
+```
+stat_key province '{"date":"$date","url":"PRO:$http_x_province"}';
+req_stat province_stat province "{'%inc': {'count':1,'hour_cnt.$hour':1, 'status.$status':1,'req_time.all': $request_time, 'req_time.$hour': $request_time}}";
+```
+根据请求参数中的from参数进行统计：
+```
+stat_key from '{"date":"$date","url":"ISP:$arg_from"}';
+req_stat from_stat from "{'%inc': {'count':1,'hour_cnt.$hour':1, 'status.$status':1,'req_time.all': $request_time, 'req_time.$hour': $request_time}}";
+```
+##### 另外，主键中不要包含变化的(随机化)的值。比如一个每次请求都会变化的URL，就不适合当主键，这种情况会导致每次请求都产生一条记录，统计数据库会膨胀很快。
 
-★★★★★注意：req_stat为了统计模块插入更新效率更高，请一定对相关表创建索引，创建方法如下：★★★★★<br/>
+##★★注意：req_stat为了统计模块插入更新效率更高，请一定对相关表创建索引，创建方法如下：<br/>
 >
 ```bash
 /usr/local/mongodb/bin/mongo`
