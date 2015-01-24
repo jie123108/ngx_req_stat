@@ -1,4 +1,4 @@
-#nginx 统计模块。#  
+mongo-c-driver-0.98.0#nginx 统计模块。#  
   ngx_req_stat是一个nginx状态统计模块，其统计项是可配置的，并且可以统计不同的虚拟主机，不同的URL。可以统计的包括请求次数，各个状态码的次数，不同的时间段的次数。输出的流量累计信息，平均处理时间等等。
 
 统计信息最终存储在mongodb中。使用mongodb进行统计信息存储，是因为mongodb支持下面的操作语句：
@@ -24,7 +24,7 @@ json-c http://www.linuxfromscratch.org/blfs/view/svn/general/json-c.html
 ```	
 cd path/to/ngx_req_stat/libs
 tar -xvf mongo-c-driver-0.98.0.tar.gz
-cd mongo-c-driver-0.92.2
+cd mongo-c-driver-0.98.0
 ./configure --prefix=/usr
 make && make install
 ```
@@ -94,7 +94,7 @@ make install
 nginx.conf 
 server {
     # 默认的主键，不用定义，名称为def，推荐的主键为：$date+$uri 这样可以按天及URL对统计进行查看。
-    stat_key def "{'date':'$date','url':'$uri'}";
+    #stat_key def "{'date':'$date','url':'$uri'}";
     # 可以使用stat_key定义其它格式的主键，并取不同的名称，然后在其它req_stat指令(第二个参数)中使用。
     
     # mongodb配置(下面是默认配置值)。
