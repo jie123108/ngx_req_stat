@@ -1,6 +1,6 @@
-mongo-c-driver-0.98.0#nginx 统计模块。#  
-  ngx_req_stat是一个nginx状态统计模块，其统计项是可配置的，并且可以统计不同的虚拟主机，不同的URL。可以统计的包括请求次数，各个状态码的次数，不同的时间段的次数。输出的流量累计信息，平均处理时间等等。
-
+#nginx 统计模块。
+ &nbsp; &nbsp; &nbsp; &nbsp;ngx_req_stat是一个nginx状态统计模块，其统计项是可配置的，并且可以统计不同的虚拟主机，不同的URL。可以统计的包括请求次数，各个状态码的次数，不同的时间段的次数。输出的流量累计信息，平均处理时间等等。
+>
 统计信息最终存储在mongodb中。使用mongodb进行统计信息存储，是因为mongodb支持下面的操作语句：
 ```bash
 	db.stat_table.update({'date':'2014-04-04', 'url':'/test01'}, {'$inc':{'count':1,'req_time.all':0.005,'status.200': 1}}, true)
@@ -8,11 +8,11 @@ mongo-c-driver-0.98.0#nginx 统计模块。#
 	{"count" : 1, "date" : "2014-04-04", "req_time" : { "all" : 0.005 }, "status" : { "200" : 1 }, "url" : "/test01" }
 ```
 在上面的语句中包含几个主要信息：
-`stat_table` 是表名，
-`{'date':'2014-04-04', 'url':'/test01'}` 是更新主键，后面可以以主键来进行查询。
-`{'$inc':{'count':1,'req_time.all':0.005,'status.200': 1}}` 是更新表达式，必须是一个json格式的符合mongodb语句的。
+* `stat_table` 是表名，
+* `{'date':'2014-04-04', 'url':'/test01'}` 是更新主键，后面可以以主键来进行查询。
+* `{'$inc':{'count':1,'req_time.all':0.005,'status.200': 1}}` 是更新表达式，必须是一个json格式的符合mongodb语句的。
 
-##安装项目依赖项##
+##安装项目依赖项
 * 网址
 ```
 mongo-c-driver  https://github.com/mongodb/mongo-c-driver<br/> 
@@ -40,6 +40,7 @@ make && make install
 统计模块的统计信息存储在mongodb中，所以需要先安装mongodb。
 到http://www.mongodb.org/downloads页面下载合适的版本。
 ```
+>
 ###比如下载32位linux版本的安装过程:	
 cd /usr/local
 wget http://fastdl.mongodb.org/linux/mongodb-linux-i686-2.x.x.tgz
@@ -93,7 +94,7 @@ make install
 ```
 nginx.conf 
 server {
-    # 默认的主键，不用定义，名称为def，推荐的主键为：$date+$uri 这样可以按天及URL对统计进行查看。
+    # 默认的主键，不用定义，名称为def，推荐的主键值为：$date+$uri 这样可以按天及URL对统计进行查看。
     #stat_key def "{'date':'$date','url':'$uri'}";
     # 可以使用stat_key定义其它格式的主键，并取不同的名称，然后在其它req_stat指令(第二个参数)中使用。
     
@@ -117,7 +118,8 @@ server {
 }
 ```
 ## 主键选择说明：
->一般情况是使用 $date, $uri 就可以了，有时也可以加上其它参数，比如下面的示例中：
+>
+一般情况是使用 $date, $uri 就可以了，有时也可以加上其它参数，比如下面的示例中：
 按根据请求头里面的x_province参数进行区分统计:
 ```
 stat_key province '{"date":"$date","url":"PRO:$http_x_province"}';
